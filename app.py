@@ -1,7 +1,21 @@
 from flask import Flask, request, jsonify,render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Api, Resource, reqparse
+import datetime
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 app = Flask(__name__)
+
+
+
+
+
+
+
+
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///contacts.db'
 db = SQLAlchemy(app)
 
@@ -27,13 +41,27 @@ with app.app_context():
 
 # Crear Rutas 
 
-@app.route('/contacts', methods = ['GET'])
 @app.route('/', methods = ['GET'])
+def html():
+    return render_template("index.html")
+
+@app.route('/doc', methods = ['GET'])
+def DOCUMENT():
+    return render_template("index.html")
+
+
+@app.route('/contacts', methods = ['GET'])
+
 def get_contacts():
     contacts = Contact.query.all()
+    
     return jsonify({'contacts': [contact.serialize() for contact in contacts]})
 
+
+
 @app.route('/contacts', methods = ['POST'])
+def FormPost():
+    return render_template("Form.html")
 def create_contact():
     data = request.get_json()
     contact = Contact(name = data['name'], email = data['email'], phone=data['phone'])
@@ -41,6 +69,29 @@ def create_contact():
     db.session.commit()
 
     return jsonify({'message':'Contacto creado con éxito', 'contact': contact.serialize()}), 201
+
+@app.route('/form', methods = ['GET'])
+def Formd():
+    return render_template("form.html")
+
+
+@app.route('/contacts', methods = ['POST'])
+def Form():
+    return render_template("Form.html")
+
+
+@app.route('/form', methods = ['POST'])
+def apicreate_contact():
+        
+   
+        name=request.form["name"]
+        email=request.form["email"]
+        phone=request.form["phone"]
+        Contacts=Contact(name,email,int(phone))
+        db.session.add(Contacts)
+        db.session.commit()
+
+        return jsonify (),200
 
 
 @app.route('/contacts/<int:id>', methods = ['GET'])
@@ -78,9 +129,7 @@ def delete_contact(id):
     db.session.commit()
     return jsonify({'message':'Contacto eliminado con éxito'})
 
-@app.route("/html") 
-def html():
-    return render_template("base.html")
+
 
 
 if __name__ == '__main__':
